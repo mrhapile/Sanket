@@ -1,0 +1,41 @@
+{
+  "name": "sanket",
+  "private": true,
+  "version": "0.1.0",
+  "description": "SANKET — Voice-first communication reliability assistant for Indian defence personnel",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"vite\" \"npm run server:dev\"",
+    "server:dev": "nodemon --watch server --ext ts --exec tsx server/index.ts",
+    "server:start": "tsx server/index.ts",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:integration": "vitest run tests/integration"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.2.0",
+    "express": "^5.3.0",
+    "socket.io": "^4.8.4",
+    "socket.io-client": "^4.8.4",
+    "typescript": "^7.0.2",
+    "vite": "^8.4.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.11",
+    "@vitest/ui": "^5.1.2",
+    "concurrently": "^10.0.7",
+    "jsdom": "^31.0.1",
+    "nodemon": "^3.1.14",
+    "tsx": "^4.23.15",
+    "vitest": "^5.1.2"
+  },
+  "allowScripts": {
+    "better-sqlite3@13.2.0": true,
+    "esbuild@0.28.2": true,
+    "fsevents@2.3.3": true
+  }
+}

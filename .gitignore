@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-server/
+
+# macOS
+.DS_Store
+
+# Local env files
+*.local
+
+# SQLite database — do NOT commit
+sanket.db
+sanket.db-shm
+sanket.db-wal
+
+# Editor directories
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*

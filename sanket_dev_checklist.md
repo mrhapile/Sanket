@@ -8,33 +8,33 @@
 
 ## 0 — Pre-build (Before any code)
 
-- [ ] Re-read `docs/PRODUCT_SPEC.md` fully
-- [ ] Re-read `docs/MESSAGE_LIFECYCLE.md` fully
-- [ ] Re-read `docs/ARCHITECTURE.md` fully
-- [ ] Re-read `docs/BUILD_PLAN.md` fully
-- [ ] Re-read `docs/TEST_PLAN.md` fully
-- [ ] Re-read `AGENTS.md` rules fully
-- [ ] Confirm: Web Speech API = real browser mic → text; Wispr Flow = external tool that types into focused textarea
-- [ ] Confirm: Socket.io = real WebSocket; NOT a military radio simulation label
-- [ ] Confirm: SQLite = real local database; NOT labelled as defence-grade
-- [ ] Confirm: localStorage = offline queue for pending messages only
-- [ ] Confirm: `delivered` requires a real server SQLite write, never faked
+- [x] Re-read `docs/PRODUCT_SPEC.md` fully
+- [x] Re-read `docs/MESSAGE_LIFECYCLE.md` fully
+- [x] Re-read `docs/ARCHITECTURE.md` fully
+- [x] Re-read `docs/BUILD_PLAN.md` fully
+- [x] Re-read `docs/TEST_PLAN.md` fully
+- [x] Re-read `AGENTS.md` rules fully
+- [x] Confirm: Web Speech API = real browser mic → text; Wispr Flow = external tool that types into focused textarea
+- [x] Confirm: Socket.io = real WebSocket; NOT a military radio simulation label
+- [x] Confirm: SQLite = real local database; NOT labelled as defence-grade
+- [x] Confirm: localStorage = offline queue for pending messages only
+- [x] Confirm: `delivered` requires a real server SQLite write, never faked
 
 ---
 
 ## 1 — Project Scaffolding
 
 ### 1.1 Init & Config
-- [ ] Run `npm create vite@latest . -- --template vanilla-ts` inside `/Users/mrhapile/Documents/Sanket`
-- [ ] Verify `package.json`, `vite.config.ts`, `tsconfig.json` are created
-- [ ] Set `"strict": true` in `tsconfig.json`
-- [ ] Set `"noImplicitAny": true` in `tsconfig.json`
-- [ ] Set `"moduleResolution": "bundler"` in `tsconfig.json`
-- [ ] Install frontend dependencies: `npm install socket.io-client`
-- [ ] Install backend dependencies: `npm install express socket.io better-sqlite3`
-- [ ] Install backend type definitions: `npm install -D @types/express @types/better-sqlite3 @types/node`
-- [ ] Install dev/test dependencies: `npm install -D vitest @vitest/ui jsdom tsx nodemon`
-- [ ] Add scripts to `package.json`:
+- [x] Run `npm create vite@latest . -- --template vanilla-ts` inside `/Users/mrhapile/Documents/Sanket`
+- [x] Verify `package.json`, `vite.config.ts`, `tsconfig.json` are created
+- [x] Set `"strict": true` in `tsconfig.json`
+- [x] Set `"noImplicitAny": true` in `tsconfig.json`
+- [x] Set `"moduleResolution": "bundler"` in `tsconfig.json`
+- [x] Install frontend dependencies: `npm install socket.io-client`
+- [x] Install backend dependencies: `npm install express socket.io better-sqlite3`
+- [x] Install backend type definitions: `npm install -D @types/express @types/better-sqlite3 @types/node`
+- [x] Install dev/test dependencies: `npm install -D vitest @vitest/ui jsdom tsx nodemon`
+- [x] Add scripts to `package.json`:
   - `"dev": "concurrently \"vite\" \"npm run server:dev\""`
   - `"server:dev": "nodemon --watch server --ext ts --exec tsx server/index.ts"`
   - `"server:start": "tsx server/index.ts"`
@@ -42,39 +42,39 @@
   - `"test:ui": "vitest --ui"`
   - `"test:integration": "vitest run tests/integration"`
   - `"build": "vite build"`
-- [ ] Install `concurrently`: `npm install -D concurrently`
-- [ ] Configure Vitest in `vite.config.ts`: `environment: 'jsdom'`, `globals: true`
-- [ ] Run `npm run dev` and confirm blank page loads; server starts on port 3001
+- [x] Install `concurrently`: `npm install -D concurrently`
+- [x] Configure Vitest in `vite.config.ts`: `environment: 'jsdom'`, `globals: true`
+- [x] Run `npm run dev` and confirm blank page loads; server starts on port 3001
 
 ### 1.2 Directory Structure
-- [ ] Create `src/types/` directory
-- [ ] Create `src/store/` directory
-- [ ] Create `src/services/` directory
-- [ ] Create `src/ui/` directory
-- [ ] Create `src/utils/` directory
-- [ ] Create `server/` directory (backend lives here)
-- [ ] Create `tests/unit/` directory
-- [ ] Create `tests/integration/` directory
-- [ ] Create `src/assets/` directory (icons if needed)
-- [ ] Delete Vite boilerplate: `src/counter.ts`, `src/typescript.svg`, `public/vite.svg`
-- [ ] Clear `src/main.ts` and `src/style.css` (keep files, empty content)
-- [ ] Clear `index.html` body (keep root `<div id="app">` only)
+- [x] Create `src/types/` directory
+- [x] Create `src/store/` directory
+- [x] Create `src/services/` directory
+- [x] Create `src/ui/` directory
+- [x] Create `src/utils/` directory
+- [x] Create `server/` directory (backend lives here)
+- [x] Create `tests/unit/` directory
+- [x] Create `tests/integration/` directory
+- [x] Create `src/assets/` directory (icons if needed)
+- [x] Delete Vite boilerplate: `src/counter.ts`, `src/typescript.svg`, `public/vite.svg`
+- [x] Clear `src/main.ts` and `src/style.css` (keep files, empty content)
+- [x] Clear `index.html` body (keep root `<div id="app">` only)
 
 ### 1.3 HTML Shell (`index.html`)
-- [ ] Set `<html lang="en">`
-- [ ] Set `<meta charset="UTF-8">`
-- [ ] Set `<meta name="viewport" content="width=device-width, initial-scale=1.0">`
-- [ ] Set `<title>SANKET — Voice-First Communication Reliability</title>`
-- [ ] Add `<meta name="description" content="SANKET is a voice-first communication reliability assistant for Indian defence personnel.">`
-- [ ] Add Google Font (Inter): preconnect + stylesheet link before CSS
-- [ ] Link `src/style.css`
-- [ ] Add `<div id="app" role="main"></div>`
-- [ ] Add `<script type="module" src="/src/main.ts"></script>`
-- [ ] Add `<noscript>SANKET requires JavaScript to run.</noscript>`
+- [x] Set `<html lang="en">`
+- [x] Set `<meta charset="UTF-8">`
+- [x] Set `<meta name="viewport" content="width=device-width, initial-scale=1.0">`
+- [x] Set `<title>SANKET — Voice-First Communication Reliability</title>`
+- [x] Add `<meta name="description" content="SANKET is a voice-first communication reliability assistant for Indian defence personnel.">`
+- [x] Add Google Font (Inter): preconnect + stylesheet link before CSS
+- [x] Link `src/style.css`
+- [x] Add `<div id="app" role="main"></div>`
+- [x] Add `<script type="module" src="/src/main.ts"></script>`
+- [x] Add `<noscript>SANKET requires JavaScript to run.</noscript>`
 
 ### 1.4 Vite Proxy Config (`vite.config.ts`)
-- [ ] Add server proxy: forward `/api/*` and `/socket.io/*` to `http://localhost:3001`
-- [ ] Example:
+- [x] Add server proxy: forward `/api/*` and `/socket.io/*` to `http://localhost:3001`
+- [x] Example:
   ```ts
   server: {
     proxy: {
@@ -83,15 +83,15 @@
     }
   }
   ```
-- [ ] Verify proxy works: `GET /api/health` returns `{ status: "ok" }` from browser
+- [x] Verify proxy works: `GET /api/health` returns `{ status: "ok" }` from browser
 
 ### 1.5 `.gitignore`
-- [ ] `node_modules/`
-- [ ] `dist/`
-- [ ] `.DS_Store`
-- [ ] `*.local`
-- [ ] `sanket.db` (SQLite file — do not commit)
-- [ ] `sanket.db-shm`, `sanket.db-wal`
+- [x] `node_modules/`
+- [x] `dist/`
+- [x] `.DS_Store`
+- [x] `*.local`
+- [x] `sanket.db` (SQLite file — do not commit)
+- [x] `sanket.db-shm`, `sanket.db-wal`
 
 ---
 
@@ -462,69 +462,69 @@
 ## 14 — Frontend: Design System (`src/style.css`)
 
 ### 14.1 CSS Custom Properties (`:root`)
-- [ ] `--color-bg`: `#0a0e1a`
-- [ ] `--color-surface`: `#111827`
-- [ ] `--color-surface-elevated`: `#1e2535`
-- [ ] `--color-border`: `rgba(255,255,255,0.08)`
-- [ ] `--color-accent`: `#3b82f6`
-- [ ] `--color-accent-hover`: `#2563eb`
-- [ ] `--color-success`: `#10b981`
-- [ ] `--color-warning`: `#f59e0b`
-- [ ] `--color-danger`: `#ef4444`
-- [ ] `--color-text-primary`: `#f1f5f9`
-- [ ] `--color-text-secondary`: `rgba(241,245,249,0.6)`
-- [ ] `--color-text-muted`: `rgba(241,245,249,0.35)`
-- [ ] `--font-family`: `'Inter', system-ui, sans-serif`
-- [ ] `--font-size-xs` through `--font-size-3xl` (6 sizes)
-- [ ] `--radius-sm` through `--radius-xl` (4 sizes)
-- [ ] `--spacing-xs` through `--spacing-2xl` (6 sizes)
-- [ ] `--shadow-card`: `0 4px 24px rgba(0,0,0,0.4)`
-- [ ] `--shadow-glow-blue`: `0 0 20px rgba(59,130,246,0.25)`
-- [ ] `--transition-fast`: `150ms ease`
-- [ ] `--transition-base`: `250ms ease`
-- [ ] `--transition-slow`: `400ms ease`
+- [x] `--color-bg`: `#0a0e1a`
+- [x] `--color-surface`: `#111827`
+- [x] `--color-surface-elevated`: `#1e2535`
+- [x] `--color-border`: `rgba(255,255,255,0.08)`
+- [x] `--color-accent`: `#3b82f6`
+- [x] `--color-accent-hover`: `#2563eb`
+- [x] `--color-success`: `#10b981`
+- [x] `--color-warning`: `#f59e0b`
+- [x] `--color-danger`: `#ef4444`
+- [x] `--color-text-primary`: `#f1f5f9`
+- [x] `--color-text-secondary`: `rgba(241,245,249,0.6)`
+- [x] `--color-text-muted`: `rgba(241,245,249,0.35)`
+- [x] `--font-family`: `'Inter', system-ui, sans-serif`
+- [x] `--font-size-xs` through `--font-size-3xl` (6 sizes)
+- [x] `--radius-sm` through `--radius-xl` (4 sizes)
+- [x] `--spacing-xs` through `--spacing-2xl` (6 sizes)
+- [x] `--shadow-card`: `0 4px 24px rgba(0,0,0,0.4)`
+- [x] `--shadow-glow-blue`: `0 0 20px rgba(59,130,246,0.25)`
+- [x] `--transition-fast`: `150ms ease`
+- [x] `--transition-base`: `250ms ease`
+- [x] `--transition-slow`: `400ms ease`
 
 ### 14.2 Reset & Base
-- [ ] CSS reset: `*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }`
-- [ ] `body`: font-family, background, color, `min-height: 100vh`
-- [ ] `:focus-visible`: `2px solid var(--color-accent)`, `outline-offset: 3px` — NEVER `outline: none`
-- [ ] `html { scroll-behavior: smooth }`
+- [x] CSS reset: `*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }`
+- [x] `body`: font-family, background, color, `min-height: 100vh`
+- [x] `:focus-visible`: `2px solid var(--color-accent)`, `outline-offset: 3px` — NEVER `outline: none`
+- [x] `html { scroll-behavior: smooth }`
 
 ### 14.3 Layout Utilities
-- [ ] `.container`: `max-width: 1200px`, `margin: 0 auto`, `padding: 0 var(--spacing-md)`
-- [ ] `.flex`, `.flex-col`, `.gap-sm`, `.gap-md`, `.gap-lg`
-- [ ] `.grid-two-col`: two columns on desktop, stacks on `max-width: 768px`
+- [x] `.container`: `max-width: 1200px`, `margin: 0 auto`, `padding: 0 var(--spacing-md)`
+- [x] `.flex`, `.flex-col`, `.gap-sm`, `.gap-md`, `.gap-lg`
+- [x] `.grid-two-col`: two columns on desktop, stacks on `max-width: 768px`
 
 ### 14.4 Component Styles
-- [ ] `.card`: surface bg, border, radius lg, shadow, transition
-- [ ] `.card:hover`: subtle border brightness lift
-- [ ] `.btn`: base reset, padding, min 44×44 px, cursor, transition
-- [ ] `.btn-primary`: accent bg, white text, hover, active scale
-- [ ] `.btn-secondary`: transparent, border, hover surface-elevated
-- [ ] `.btn-danger`: danger bg variant
-- [ ] `.btn:disabled`: opacity 0.5, cursor not-allowed
-- [ ] `.btn-voice`: special mic button — large, round or pill shape, accent with mic icon state
-- [ ] `.btn-voice.listening`: pulsing ring animation while recording
-- [ ] `.badge`: pill, `font-size: xs`, uppercase, letter-spacing
-- [ ] `.badge-pending`: amber — text + colour
-- [ ] `.badge-sent`: blue — text + colour
-- [ ] `.badge-delivered`: green — text + colour
-- [ ] `.badge-acknowledged`: teal — text + colour
-- [ ] `.badge-disconnected`: danger — text + colour
-- [ ] ⚠️ Each badge: colour + text label ALWAYS — never colour alone
-- [ ] `.textarea`: full-width, min-height 120px, border, radius, bg surface-elevated, focus ring
-- [ ] `.status-dot`: 8px circle, inline-block; colours match badges
-- [ ] `.prototype-banner`: always-visible strip, muted text, `font-size: xs`
-- [ ] `.connection-status`: dynamic label showing Socket.io state
-- [ ] `.voice-instruction-panel`: distinct bg, border-left accent, padding — houses Wispr Flow / Web Speech instructions
+- [x] `.card`: surface bg, border, radius lg, shadow, transition
+- [x] `.card:hover`: subtle border brightness lift
+- [x] `.btn`: base reset, padding, min 44×44 px, cursor, transition
+- [x] `.btn-primary`: accent bg, white text, hover, active scale
+- [x] `.btn-secondary`: transparent, border, hover surface-elevated
+- [x] `.btn-danger`: danger bg variant
+- [x] `.btn:disabled`: opacity 0.5, cursor not-allowed
+- [x] `.btn-voice`: special mic button — large, round or pill shape, accent with mic icon state
+- [x] `.btn-voice.listening`: pulsing ring animation while recording
+- [x] `.badge`: pill, `font-size: xs`, uppercase, letter-spacing
+- [x] `.badge-pending`: amber — text + colour
+- [x] `.badge-sent`: blue — text + colour
+- [x] `.badge-delivered`: green — text + colour
+- [x] `.badge-acknowledged`: teal — text + colour
+- [x] `.badge-disconnected`: danger — text + colour
+- [x] ⚠️ Each badge: colour + text label ALWAYS — never colour alone
+- [x] `.textarea`: full-width, min-height 120px, border, radius, bg surface-elevated, focus ring
+- [x] `.status-dot`: 8px circle, inline-block; colours match badges
+- [x] `.prototype-banner`: always-visible strip, muted text, `font-size: xs`
+- [x] `.connection-status`: dynamic label showing Socket.io state
+- [x] `.voice-instruction-panel`: distinct bg, border-left accent, padding — houses Wispr Flow / Web Speech instructions
 
 ### 14.5 Animations
-- [ ] `@keyframes fadeIn`: opacity 0 → 1
-- [ ] `@keyframes slideUp`: translateY(12px) opacity 0 → translateY(0) opacity 1
-- [ ] `@keyframes pulse`: scale pulse for pending badge
-- [ ] `@keyframes micRipple`: expanding ring for voice listening state
-- [ ] Apply `fadeIn` to new message cards
-- [ ] `@media (prefers-reduced-motion: reduce)` — disable all animations
+- [x] `@keyframes fadeIn`: opacity 0 → 1
+- [x] `@keyframes slideUp`: translateY(12px) opacity 0 → translateY(0) opacity 1
+- [x] `@keyframes pulse`: scale pulse for pending badge
+- [x] `@keyframes micRipple`: expanding ring for voice listening state
+- [x] Apply `fadeIn` to new message cards
+- [x] `@media (prefers-reduced-motion: reduce)` — disable all animations
 
 ---
 
@@ -794,8 +794,8 @@ Run all in two side-by-side Chrome windows before recording.
 
 | Group | Total Items | Done | Remaining |
 |---|---|---|---|
-| 0 — Pre-build | 11 | 0 | 11 |
-| 1 — Scaffolding | 35 | 0 | 35 |
+| 0 — Pre-build | 11 | 11 | 0 |
+| 1 — Scaffolding | 35 | 35 | 0 |
 | 2 — Types | 21 | 0 | 21 |
 | 3 — Utils | 10 | 0 | 10 |
 | 4 — DB module | 15 | 0 | 15 |
@@ -808,7 +808,7 @@ Run all in two side-by-side Chrome windows before recording.
 | 11 — Socket.io client | 14 | 0 | 14 |
 | 12 — Speech service | 14 | 0 | 14 |
 | 13 — App controller | 18 | 0 | 18 |
-| 14 — Design system | 50 | 0 | 50 |
+| 14 — Design system | 50 | 50 | 0 |
 | 15 — Shell UI | 14 | 0 | 14 |
 | 16 — Sender UI | 25 | 0 | 25 |
 | 17 — Receiver UI | 14 | 0 | 14 |
@@ -820,7 +820,8 @@ Run all in two side-by-side Chrome windows before recording.
 | 23 — Manual Q-gates | 10 | 0 | 10 |
 | 24 — Evidence capture | 6 | 0 | 6 |
 | 25 — Submission prep | 15 | 0 | 15 |
-| **TOTAL** | **378** | **0** | **378** |
+| **TOTAL** | **378** | **96** | **282** |
+
 
 ---
 
