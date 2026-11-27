@@ -2,68 +2,162 @@
 
 ## Design goal
 
-Keep the build local, inspectable, and deterministic enough to demo the complete reliability workflow in a browser.
+Build a fully working local prototype that demonstrates the complete voice-first reliability workflow across two real browser windows, using a real WebSocket server and a real SQLite database.
 
-## Components
+## System overview
 
-```text
-Sender dashboard
-  -> message service
-  -> simulated transport (Normal / Unstable / Disconnected)
-  -> receiver inbox store
-  -> Receiver dashboard
-
-All persistent state -> browser local storage
+```
+Device A — Sender Browser              Device B — Receiver Browser
+  Web Speech API (mic)                    Socket.io client
+  localStorage (offline queue)            In-memory inbox
+  Socket.io client                        Acknowledge action
+         │                                       │
+         └──────────── Socket.io ────────────────┘
+                            │
+                    Node.js + Express
+                    Socket.io Server
+                            │
+                         SQLite
+                    (better-sqlite3)
 ```
 
-## Required modules
+## Tech stack
 
-| Module | Responsibility |
+| Layer | Technology |
 |---|---|
-| `types` | Message, network mode, participant, and event types. |
-| `storage` | Read/write/version browser-persisted prototype state. |
-| `message-service` | Confirm messages, assign metadata, retry, transition states. |
-| `transport-simulator` | Deterministically deliver, delay/fail, or queue based on mode. |
-| `receiver-store` | Idempotent receiver persistence and acknowledgement. |
-| `network-store` | Shared selected network mode and reconnection trigger. |
-| `sender-ui` | Composer, review, send, queue, and history. |
-| `receiver-ui` | Ordered inbox, notification, and acknowledgement. |
+| Frontend framework | Vite + TypeScript (vanilla, no UI framework) |
+| Styling | Vanilla CSS with custom properties |
+| Voice input | Browser Web Speech API (primary) + Wispr Flow (alternative) |
+| Real-time transport | Socket.io (WebSocket with fallback) |
+| Backend server | Node.js + Express |
+| Database | SQLite via `better-sqlite3` |
+| Offline queue | localStorage (sender device only) |
+| Network detection | `navigator.onLine` + Socket.io `connect`/`disconnect` events |
 
-## Storage model
+## Frontend modules
 
-Use one versioned application-state key. It should contain:
+| Module | File | Responsibility |
+|---|---|---|
+| `types` | `src/types/index.ts` | Message, NetworkMode, Participant, AppState, DeliveryResult types |
+| `storage` | `src/store/storage.ts` | Read/write localStorage: offline queue, sequence counter, network mode |
+| `socket-client` | `src/services/socket-client.ts` | Socket.io client wrapper: connect, emit, subscribe to events |
+| `speech-service` | `src/services/speech-service.ts` | Web Speech API wrapper: start/stop recognition, interim + final results |
+| `message-service` | `src/services/message-service.ts` | Confirm messages, assign metadata, manage state transitions |
+| `network-store` | `src/store/network-store.ts` | Track network mode; detect reconnect; trigger queue drain |
+| `app-controller` | `src/services/app-controller.ts` | Wire all services; handle UI events; orchestrate retry |
+| `shell-ui` | `src/ui/shell.ts` | Header, tabs, network selector, connection status badge |
+| `sender-ui` | `src/ui/sender.ts` | Composer, voice controls, queue, history, status legend |
+| `receiver-ui` | `src/ui/receiver.ts` | Inbox, new-message alert, acknowledge button |
 
-- selected network mode
-- outbox and sender-visible message history
-- receiver inbox
-- received message IDs
-- next per-conversation sequence number
-- notification/acknowledgement metadata
+## Backend modules
 
-On load, validate and safely default malformed or missing data. Use a clearly named reset-demo control only if it confirms the action and explains that it clears local simulated data.
+| Module | File | Responsibility |
+|---|---|---|
+| `server` | `server/index.ts` | Express app + Socket.io server bootstrap |
+| `db` | `server/db.ts` | SQLite connection, schema init, prepared statements |
+| `message-handlers` | `server/message-handlers.ts` | Socket.io event handlers for send, deliver, acknowledge |
+| `rest-api` | `server/rest-api.ts` | GET `/api/messages` — history fetch on page load |
 
-## Transport contract
+## SQLite schema
 
-```ts
-deliver(message: Message, mode: NetworkMode): Promise<DeliveryResult>
+```sql
+CREATE TABLE IF NOT EXISTS messages (
+  id            TEXT PRIMARY KEY,
+  conversationId TEXT NOT NULL,
+  sequence      INTEGER NOT NULL,
+  senderId      TEXT NOT NULL,
+  body          TEXT NOT NULL,
+  createdAt     TEXT NOT NULL,
+  status        TEXT NOT NULL DEFAULT 'delivered',
+  attempts      INTEGER NOT NULL DEFAULT 0,
+  deliveredAt   TEXT,
+  acknowledgedAt TEXT,
+  receiverId    TEXT,
+  lastError     TEXT
+);
+
+CREATE TABLE IF NOT EXISTS received_ids (
+  messageId TEXT PRIMARY KEY,
+  recordedAt TEXT NOT NULL
+);
 ```
 
-- Normal resolves immediately with receiver persistence.
-- Unstable uses a deterministic or visibly controlled delay/failure path; randomness alone is not acceptable for a recorded demo.
-- Disconnected never calls receiver persistence.
-- Changing from Unstable/Disconnected to Normal triggers queued retry through the message service, not UI-only status editing.
+## Socket.io events
 
-## Wispr Flow boundary
+### Client → Server
 
-Wispr Flow runs as a user-facing dictation tool that types into focused inputs. SANKET must support that workflow with a focused accessible composer and unambiguous on-screen guidance. The app does not depend on an undocumented Wispr API.
+| Event | Payload | Description |
+|---|---|---|
+| `message:send` | `Message` | Sender emits a confirmed message |
+| `message:acknowledge` | `{ messageId, receiverId, acknowledgedAt }` | Receiver acknowledges a delivered message |
+| `room:join` | `{ conversationId, participantId, role }` | Client joins a conversation room |
 
-## Accessibility and field suitability
+### Server → Client
 
-- Large tap targets and high-contrast status colours paired with text labels.
-- Status must never rely on colour alone.
-- Keyboard operation and visible focus states.
-- Avoid visual clutter and unnecessary navigation.
+| Event | Payload | Sent to |
+|---|---|---|
+| `message:delivered` | `Message` (with deliveredAt) | Sender (confirmation) + Receiver (new message push) |
+| `message:acknowledged` | `{ messageId, acknowledgedAt, receiverId }` | Sender (status update) |
+| `message:error` | `{ messageId, error }` | Sender (delivery failure) |
+| `room:history` | `Message[]` | Rejoining client (page reload) |
+
+## Offline queue flow
+
+```
+Sender confirms message
+  ↓
+navigator.onLine === false OR Socket.io disconnected
+  ↓
+Save to localStorage queue with status: "pending"
+  ↓
+navigator.onLine fires "online" OR Socket.io fires "connect"
+  ↓
+app-controller reads queue, sorts by sequence ASC
+  ↓
+Emit message:send for each, one at a time, await server ack
+  ↓
+On success: remove from localStorage queue, update UI
+  ↓
+On failure: retain in queue, increment attempts, show error
+```
+
+## REST API
+
+```
+GET /api/messages?conversationId=<id>
+  → Returns all messages for the conversation from SQLite
+  → Used on page load to restore history
+  → Ordered by sequence ASC
+
+GET /api/health
+  → Returns { status: "ok", dbConnected: true }
+```
+
+## Persistence split
+
+| Data | Storage |
+|---|---|
+| Pending (undelivered) messages | localStorage — sender device |
+| Delivered + acknowledged messages | SQLite — server |
+| Receiver inbox | Rebuilt from SQLite on page load + live Socket.io pushes |
+| Next sequence number | localStorage — sender device |
+| Network mode selection | localStorage — both devices |
+
+## Voice input boundary
+
+The browser Web Speech API is a real browser capability. SANKET calls `window.SpeechRecognition` directly. The result is interim text shown live in the composer, followed by a final transcript on silence. This is labelled "Browser Speech Recognition" in the UI.
+
+Wispr Flow types into the focused `<textarea>` from outside the browser. SANKET supports this by ensuring the composer is always focusable and accessible. The app does not call a Wispr API.
 
 ## Prototype disclosure
 
-Show a restrained but visible label: `Prototype: simulated transport and local data`. This protects the demo from implying real operational integration.
+Show a persistent banner: `Prototype: local WebSocket transport — not a military radio channel`. This must be visible at all times and cannot be dismissed.
+
+## Accessibility and field suitability
+
+- Large tap targets (≥ 44 × 44 px) on all interactive elements.
+- Status labels always use text + colour, never colour alone.
+- Keyboard-navigable: Tab through all actions; arrow keys for tab/group controls.
+- Visible focus rings on all focusable elements (never `outline: none`).
+- `aria-live` regions for new messages and delivery status changes.
+- High contrast dark theme; minimum 4.5:1 contrast ratio on all text.

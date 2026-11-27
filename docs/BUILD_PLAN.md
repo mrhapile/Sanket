@@ -1,49 +1,74 @@
 # SANKET Build Plan
 
+## Priority rule
+
+Never work on visual polish before Milestones 2 and 3 are correct and tested. The judged proof is the reliable workflow, not aesthetics.
+
+---
+
 ## Milestone 1 — Foundation
 
-1. Create the web application shell and baseline styling.
-2. Define types and versioned persistent state.
-3. Build shared header, dashboard switcher, network selector, and prototype disclosure.
+1. Scaffold Vite + TypeScript frontend and Node.js + Express backend in the same repo.
+2. Set up Socket.io on both server and client.
+3. Initialise SQLite with `better-sqlite3` and run schema migrations.
+4. Define all TypeScript types (`Message`, `AppState`, `NetworkMode`, `DeliveryResult`).
+5. Build shared localStorage storage module for the offline queue and sequence counter.
+6. Build the shell UI: header, Sender/Receiver tab switcher, network selector, connection status badge, prototype disclosure banner.
 
-**Done when:** page reload restores selected network mode and empty state without errors.
+**Done when:** Both browser tabs open, join the same Socket.io room, and the page reload restores localStorage state without errors. `GET /api/health` returns `{ status: "ok", dbConnected: true }`.
+
+---
 
 ## Milestone 2 — Correct message engine
 
-1. Implement message confirmation with immutable ID, timestamp, and sequence.
-2. Implement receiver-side idempotent persistence.
-3. Implement all lifecycle transitions and acknowledgement.
-4. Unit-test state transitions, ordering, and duplicates.
+1. Implement message confirmation: immutable ID (UUID v4), `createdAt` timestamp, per-conversation sequence number.
+2. Implement server-side `message:send` handler: insert into SQLite with unique constraint; return existing row on duplicate.
+3. Implement receiver-side idempotent delivery: server pushes `message:delivered` to room; client renders once per ID.
+4. Implement all lifecycle transitions: `pending → sent → delivered → acknowledged`.
+5. Implement acknowledgement: server updates SQLite `acknowledgedAt`; emits `message:acknowledged` to Sender.
+6. Unit-test all state transitions, ordering, duplicate prevention, and idempotent acknowledgement.
 
-**Done when:** lifecycle acceptance scenarios in `docs/MESSAGE_LIFECYCLE.md` pass without relying on the UI.
+**Done when:** All five lifecycle acceptance scenarios in `docs/MESSAGE_LIFECYCLE.md` pass. Duplicate `message:send` emits produce one SQLite row and one Receiver-visible message.
 
-## Milestone 3 — Network reliability simulation
+---
 
-1. Implement Normal delivery.
-2. Implement Disconnected queueing and automatic reconnect retry.
-3. Implement deterministic Unstable delay/failure controls.
-4. Persist and rehydrate queues safely.
+## Milestone 3 — Offline queue and network reliability
 
-**Done when:** a queued message survives refresh and arrives once after reconnect.
+1. Implement localStorage offline queue: save `pending` messages on confirm when disconnected.
+2. Implement `navigator.onLine` listener and Socket.io `connect` event: trigger queue drain on reconnect.
+3. Implement queue drain: process pending messages in ascending `sequence` order, one at a time, waiting for server ack between each.
+4. Implement manual network mode toggle (Normal / Unstable / Disconnected) for demo control.
+5. Implement Unstable mode: deterministic delay + configurable force-fail toggle; expose attempt count and error in UI.
+6. Implement page-load history restore: `GET /api/messages` fetches SQLite history; merge with localStorage queue.
+7. Persist and rehydrate queue safely: reload must never promote `pending` to `delivered`.
+
+**Done when:** A `pending` message survives a full page refresh and delivers exactly once after reconnect. Multiple queued messages deliver in sequence order.
+
+---
 
 ## Milestone 4 — Voice-first user interface
 
-1. Build the Sender composer with Wispr Flow guidance and transcript review.
-2. Build sender queue/history and status explanation.
-3. Build Receiver inbox, notification, and acknowledgement action.
-4. Add Hindi/English/mixed-language sample content for demo only.
+1. Implement `speech-service.ts`: wrap `window.SpeechRecognition`; show interim results live in composer; finalise on silence; handle errors gracefully (no mic, not supported).
+2. Build Sender composer: focusable `<textarea>`, voice input button, live transcript, correction UX, Confirm & Send button with empty-transcript guard.
+3. Build voice input instruction panel: label it "Browser Speech Recognition (Web Speech API)" clearly; include step-by-step dictation guide; include Wispr Flow alternative note.
+4. Build sender outbox queue: ID, sequence, timestamp, status badge, attempt count, last error.
+5. Build sender history: all confirmed messages with full status trail, most recent first.
+6. Build status legend: Sent / Delivered / Acknowledged with text explanations.
+7. Build Receiver inbox: real-time push via Socket.io, ordered by sequence, new-message banner with `aria-live`.
+8. Build Acknowledge button: per-message, disappears after action, idempotent.
+9. Add Hindi, English, and mixed-language sample messages as Load Sample shortcuts (demo convenience, clearly labelled).
 
-**Done when:** the full primary flow can be completed without typing except transcript correction.
+**Done when:** The full primary flow — dictate, review, confirm, deliver, acknowledge — can be completed across two browser windows without any manual data entry.
+
+---
 
 ## Milestone 5 — Verification and submission
 
-1. Run every quality gate in `docs/TEST_PLAN.md`.
-2. Fix all behaviour failures and responsive issues.
-3. Record the exact sequence in `docs/DEMO_AND_ACCEPTANCE.md`.
-4. Prepare repository README with setup, prototype boundary, tested flow, and Wispr Flow usage note.
+1. Run every quality gate in `docs/TEST_PLAN.md` (Q1–Q10).
+2. Fix all behaviour failures and responsive layout issues.
+3. Verify accessibility: keyboard navigation, focus rings, aria-live announcements, contrast.
+4. Record the demo following `docs/DEMO_AND_ACCEPTANCE.md` exactly.
+5. Update `README.md` with final setup instructions, prototype limits, and recording link.
+6. Complete all items in `docs/SUBMISSION_CHECKLIST.md`.
 
-**Done when:** the demo can be replayed reliably from a clean persisted state and all mandatory submission artifacts are ready.
-
-## Priority rule
-
-Never work on visual polish before Milestones 2 and 3 are correct. The judged proof is the reliable workflow, not a mock dashboard.
+**Done when:** The demo replays reliably from a clean database state, all quality gates pass, and all submission artifacts are ready.
